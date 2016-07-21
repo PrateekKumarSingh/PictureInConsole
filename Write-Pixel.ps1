@@ -1,14 +1,11 @@
-Function Write-Pixel
+﻿Function Write-Pixel
 {
     param(
             [String] [parameter(mandatory=$true, Valuefrompipeline = $true)] $Path
     )
-
     Begin
     {
-        #[enum]::GetValues([System.ConsoleColor])
-
-        [void] [System.Reflection.Assembly]::LoadWithPartialName("System.drawing")
+        [void] [System.Reflection.Assembly]::LoadWithPartialName('System.drawing')
         
         # Console Colors and their Hexadecimal values
         $Colors = @{
@@ -31,14 +28,14 @@ Function Write-Pixel
         }
         
         # Algorithm to calculate closest Console color (Only 16) to a color of Pixel
-        Function Get-ClosetConsoleColor($PixelColor)
+        Function Get-ClosestConsoleColor($PixelColor)
         {
-            $Differences = Foreach($item in $Colors.Keys)
-            {
-                ''|select @{n='Color';e={$Item}},@{n='Diff';e={[math]::abs([convert]::ToInt32($Item,16) - [convert]::ToInt32($PixelColor,16))}} 
-            }
-    
-            ($Differences |sort Diff)[0].color
+            ($(foreach ($item in $Colors.Keys) {
+                [pscustomobject]@{
+                    'Color' = $Item
+                    'Diff'  = [math]::abs([convert]::ToInt32($Item,16) - [convert]::ToInt32($PixelColor,16))
+                } 
+            }) | Sort-Object Diff)[0].color
         }
     }
     Process
@@ -53,11 +50,10 @@ Function Write-Pixel
                 Foreach($x in (1..($BitMap.Width-1)))
                 {
                     $Pixel = $BitMap.GetPixel($X,$Y)        
-                    $BackGround = $Colors.Item((Get-ClosetConsoleColor $Pixel.name))
-
-                    Write-Host " " -NoNewline -BackgroundColor $BackGround
+                    $BackGround = $Colors.Item((Get-ClosestConsoleColor $Pixel.name))
+                    Write-Host ' ' -NoNewline -BackgroundColor $BackGround
                 }
-                Write-Host "" # Blank write-host to Start the next row
+                Write-Host '' # Blank write-host to Start the next row
             }
         }        
     
@@ -68,6 +64,3 @@ Function Write-Pixel
     }
 
 }
-
-
-#"JSnover.png" |Write-Pixel
