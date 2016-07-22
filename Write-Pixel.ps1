@@ -1,7 +1,8 @@
-﻿Function Write-Pixel
+Function Write-Pixel
 {
     param(
-            [String] [parameter(mandatory=$true, Valuefrompipeline = $true)] $Path
+            [String] [parameter(mandatory=$true, Valuefrompipeline = $true)] $Path,
+            [Switch] $ToASCII
     )
     Begin
     {
@@ -51,7 +52,16 @@
                 {
                     $Pixel = $BitMap.GetPixel($X,$Y)        
                     $BackGround = $Colors.Item((Get-ClosestConsoleColor $Pixel.name))
-                    Write-Host ' ' -NoNewline -BackgroundColor $BackGround
+                    
+
+                    If($ToASCII) # Condition to check ToASCII switch
+                    {
+                        Write-Host "$([Char](Get-Random -Maximum 126 -Minimum 33))" -NoNewline -ForegroundColor $BackGround
+                    }
+                    else
+                    {
+                        Write-Host " " -NoNewline -BackgroundColor $BackGround
+                    }
                 }
                 Write-Host '' # Blank write-host to Start the next row
             }
